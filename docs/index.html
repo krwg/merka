@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Эскиз платья — редактируемый</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Caveat:wght@400;600&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #f4efe9;
+    font-family: 'Cormorant Garamond', serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 16px 60px;
+  }
+
+  h1 {
+    font-weight: 300;
+    font-size: 1.6rem;
+    letter-spacing: 0.25em;
+    color: #2e2420;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+    text-align: center;
+  }
+
+  .subtitle {
+    font-size: 0.85rem;
+    color: #8a7a70;
+    letter-spacing: 0.12em;
+    margin-bottom: 28px;
+    font-style: italic;
+    text-align: center;
+  }
+
+  /* ── Editor panel ── */
+  .editor {
+    background: #fdf9f5;
+    border: 1px solid #d5ccc3;
+    box-shadow: 3px 3px 0 #ddd5cc, 6px 6px 16px rgba(80,60,40,0.07);
+    padding: 20px 22px;
+    width: 100%;
+    max-width: 520px;
+    margin-bottom: 28px;
+  }
+
+  .editor h2 {
+    font-weight: 300;
+    font-size: 1.05rem;
+    letter-spacing: 0.15em;
+    color: #2e2420;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    text-align: center;
+  }
+
+  .inputs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px 18px;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .field label {
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #8a7a70;
+  }
+
+  .field input {
+    font-family: 'Caveat', cursive;
+    font-size: 1.3rem;
+    color: #2e2420;
+    background: #fff;
+    border: 1px solid #c5bbb0;
+    border-radius: 4px;
+    padding: 6px 10px;
+    outline: none;
+    transition: border-color 0.2s;
+    width: 100%;
+  }
+
+  .field input:focus {
+    border-color: #8a7a70;
+  }
+
+  .field input::placeholder {
+    color: #c5bbb0;
+  }
+
+  .editor-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 16px;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    padding: 10px 24px;
+    background: transparent;
+    border: 1px solid #2e2420;
+    color: #2e2420;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.85rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s;
+    border-radius: 2px;
+  }
+
+  .btn:hover { background: #2e2420; color: #fdf9f5; }
+  .btn.secondary { border-color: #8a7a70; color: #8a7a70; }
+  .btn.secondary:hover { background: #8a7a70; color: #fdf9f5; }
+
+  /* ── Variants ── */
+  .variants {
+    display: flex;
+    gap: 30px;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: flex-start;
+    width: 100%;
+  }
+
+  .variant {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .variant-label {
+    font-size: 0.75rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #8a7a70;
+  }
+
+  .sketch-card {
+    background: #fdf9f5;
+    border: 1px solid #d5ccc3;
+    padding: 20px 16px 20px 28px;
+    box-shadow: 3px 3px 0 #ddd5cc, 6px 6px 16px rgba(80,60,40,0.07);
+    position: relative;
+    width: fit-content;
+  }
+
+  svg { display: block; max-width: 100%; height: auto; }
+
+  /* Measurement text styling */
+  .meas-text {
+    font-family: 'Caveat', cursive;
+    font-size: 16px;
+    fill: #2e2420;
+  }
+  .meas-text.placeholder {
+    fill: #a09080;
+    font-size: 14px;
+  }
+
+  .btn-print {
+    margin-top: 36px;
+    padding: 11px 34px;
+    background: transparent;
+    border: 1px solid #2e2420;
+    color: #2e2420;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.9rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  .btn-print:hover { background: #2e2420; color: #fdf9f5; }
+
+  /* ── Responsive ── */
+  @media (max-width: 640px) {
+    h1 { font-size: 1.25rem; letter-spacing: 0.18em; }
+    .subtitle { font-size: 0.78rem; }
+    .editor { padding: 16px 14px; }
+    .editor h2 { font-size: 0.95rem; }
+    .inputs { grid-template-columns: 1fr; gap: 10px; }
+    .field input { font-size: 1.15rem; padding: 5px 8px; }
+    .sketch-card { padding: 14px 10px 14px 20px; }
+    .variants { gap: 20px; }
+    .btn, .btn-print { padding: 9px 20px; font-size: 0.8rem; }
+  }
+
+  @media print {
+    body { background: white; padding: 0; }
+    .editor, h1, .subtitle, .variant-label, .btn-print { display: none; }
+    .variants { gap: 16px; }
+    .sketch-card { box-shadow: none; border: 0.5px solid #bbb; padding: 20px 16px 20px 30px; }
+  }
+</style>
+<base target="_blank">
+</head>
+<body>
+
+<h1>Эскиз платья</h1>
+<p class="subtitle">Выкройка · Два варианта</p>
+
+<!-- ════════ EDITOR ════════ -->
+<div class="editor">
+  <h2>Замеры</h2>
+  <div class="inputs">
+    <div class="field">
+      <label for="chest">Ширина груди</label>
+      <input type="text" id="chest" placeholder="33" inputmode="decimal" autocomplete="off">
+    </div>
+    <div class="field">
+      <label for="hip">Ширина бёдер</label>
+      <input type="text" id="hip" placeholder="49" inputmode="decimal" autocomplete="off">
+    </div>
+    <div class="field">
+      <label for="sleeve">Длина рукава</label>
+      <input type="text" id="sleeve" placeholder="49" inputmode="decimal" autocomplete="off">
+    </div>
+    <div class="field">
+      <label for="skirt">Длина юбки</label>
+      <input type="text" id="skirt" placeholder="84" inputmode="decimal" autocomplete="off">
+    </div>
+  </div>
+  <div class="editor-actions">
+    <button class="btn" onclick="applyValues()">Применить</button>
+    <button class="btn secondary" onclick="clearValues()">Очистить</button>
+  </div>
+</div>
+
+<!-- ════════ VARIANTS ════════ -->
+<div class="variants">
+
+  <!-- ===== VARIANT 1: WITH MEASUREMENTS ===== -->
+  <div class="variant">
+    <div class="variant-label">С размерами</div>
+    <div class="sketch-card">
+      <svg width="260" height="430" viewBox="0 0 260 430" fill="none" xmlns="http://www.w3.org/2000/svg">
+
+        <!-- ── COLLAR ── -->
+        <rect x="102" y="22" width="56" height="16" rx="1.5" fill="#ddd5c8" stroke="#2e2420" stroke-width="1.6"/>
+        <line x1="108" y1="22" x2="102" y2="38" stroke="#2e2420" stroke-width="0.8" opacity="0.4"/>
+        <line x1="116" y1="22" x2="108" y2="38" stroke="#2e2420" stroke-width="0.8" opacity="0.4"/>
+        <line x1="124" y1="22" x2="116" y2="38" stroke="#2e2420" stroke-width="0.8" opacity="0.4"/>
+        <line x1="132" y1="22" x2="124" y2="38" stroke="#2e2420" stroke-width="0.8" opacity="0.4"/>
+        <line x1="140" y1="22" x2="132" y2="38" stroke="#2e2420" stroke-width="0.8" opacity="0.4"/>
+        <line x1="148" y1="22" x2="140" y2="38" stroke="#2e2420" stroke-width="0.8" opacity="0.4"/>
+        <line x1="156" y1="22" x2="148" y2="38" stroke="#2e2420" stroke-width="0.8" opacity="0.4"/>
+        <line x1="158" y1="24" x2="154" y2="38" stroke="#2e2420" stroke-width="0.8" opacity="0.4"/>
+
+        <!-- ── SHOULDER LINE ── -->
+        <path d="M102,38 C90,38 76,40 68,46" stroke="#2e2420" stroke-width="1.8" stroke-linecap="round"/>
+        <path d="M158,38 C170,38 184,40 192,46" stroke="#2e2420" stroke-width="1.8" stroke-linecap="round"/>
+
+        <!-- ── LEFT SLEEVE ── -->
+        <path d="M68,46 C58,44 38,50 30,62 C24,72 24,95 26,112 C27,122 30,135 34,148"
+              stroke="#2e2420" stroke-width="1.8" stroke-linecap="round"/>
+        <path d="M68,46 C72,54 74,70 76,88 C78,105 78,128 76,148"
+              stroke="#2e2420" stroke-width="1.8" stroke-linecap="round"/>
+        <line x1="33" y1="148" x2="77" y2="148" stroke="#2e2420" stroke-width="1.8" stroke-linecap="round"/>
+        <line x1="35" y1="155" x2="78" y2="155" stroke="#2e2420" stroke-width="1.4"/>
+        <line x1="33" y1="148" x2="35" y2="155" stroke="#2e2420" stroke-width="1.4"/>
+        <line x1="77" y1="148" x2="78" y2="155" stroke="#2e2420" stroke-width="1.4"/>
+
+        <!-- ── RIGHT SLEEVE ── -->
+        <path d="M192,46 C202,44 222,50 230,62 C236,72 236,95 234,112 C233,122 230,135 226,148"
+              stroke="#2e2420" stroke-width="1.8" stroke-linecap="round"/>
+        <path d="M192,46 C188,54 186,70 184,88 C182,105 182,128 184,148"
+              stroke="#2e2420" stroke-width="1.8" stroke-linecap="round"/>
+        <line x1="183" y1="148" x2="227" y2="148" stroke="#2e2420" stroke-width="1.8" stroke-linecap="round"/>
+        <line x1="182" y1="155" x2="225" y2="155" stroke="#2e2420" stroke-width="1.4"/>
+        <line x1="183" y1="148" x2="182" y2="155" stroke="#2e2420" stroke-width="1.4"/>
+        <line x1="227" y1="148" x2="225" y2="155" stroke="#2e2420" stroke-width="1.4"/>
+
+        <!-- ── BODICE SIDE SEAMS ── -->
+        <path d="M78,88 C80,100 80,122 80,155" stroke="#2e2420" stroke-width="1.8"/>
+        <path d="M182,88 C180,100 180,122 180,155" stroke="#2e2420" stroke-width="1.8"/>
+
+        <!-- ── WAIST LINE ── -->
+        <line x1="80" y1="155" x2="180" y2="155" stroke="#2e2420" stroke-width="0.9" stroke-dasharray="5,4"/>
+
+        <!-- ── SKIRT ── -->
+        <path d="M80,155 C78,180 72,230 65,280 C60,318 54,355 50,400"
+              stroke="#2e2420" stroke-width="1.8"/>
+        <path d="M180,155 C182,180 188,230 195,280 C200,318 206,355 210,400"
+              stroke="#2e2420" stroke-width="1.8"/>
+        <path d="M50,400 C90,408 170,408 210,400" stroke="#2e2420" stroke-width="1.8"/>
+
+        <!-- ── BUST DETAIL ── -->
+        <path d="M96,110 C104,118 112,120 118,118" stroke="#2e2420" stroke-width="1.1" opacity="0.55"/>
+        <path d="M142,118 C148,120 156,118 164,110" stroke="#2e2420" stroke-width="1.1" opacity="0.55"/>
+
+        <!-- ── CENTER LINE ── -->
+        <line x1="130" y1="38" x2="130" y2="408" stroke="#2e2420" stroke-width="0.6" stroke-dasharray="6,5" opacity="0.35"/>
+
+        <!-- ════════ MEASUREMENTS ════════ -->
+
+        <!-- Chest width -->
+        <line x1="80" y1="72" x2="180" y2="72" stroke="#6a5a4a" stroke-width="0.9" stroke-dasharray="3,3"/>
+        <line x1="80" y1="67" x2="80" y2="77" stroke="#6a5a4a" stroke-width="1.1"/>
+        <line x1="180" y1="67" x2="180" y2="77" stroke="#6a5a4a" stroke-width="1.1"/>
+        <text id="v1-chest" x="130" y="66" text-anchor="middle" class="meas-text">33 см</text>
+
+        <!-- Hip width -->
+        <line x1="73" y1="222" x2="187" y2="222" stroke="#6a5a4a" stroke-width="0.9" stroke-dasharray="3,3"/>
+        <line x1="73" y1="217" x2="73" y2="227" stroke="#6a5a4a" stroke-width="1.1"/>
+        <line x1="187" y1="217" x2="187" y2="227" stroke="#6a5a4a" stroke-width="1.1"/>
+        <text id="v1-hip" x="130" y="216" text-anchor="middle" class="meas-text">49 см</text>
+
+        <!-- Sleeve length -->
+        <line x1="14" y1="46" x2="14" y2="155" stroke="#6a5a4a" stroke-width="0.9" stroke-dasharray="3,3"/>
+        <line x1="10" y1="46" x2="18" y2="46" stroke="#6a5a4a" stroke-width="1.1"/>
+        <line x1="10" y1="155" x2="18" y2="155" stroke="#6a5a4a" stroke-width="1.1"/>
+        <text id="v1-sleeve" x="9" y="106" text-anchor="middle" class="meas-text" transform="rotate(-90,9,106)">49 см</text>
+
+        <!-- Skirt length -->
+        <line x1="2" y1="155" x2="2" y2="400" stroke="#6a5a4a" stroke-width="0.9" stroke-dasharray="3,3"/>
+        <line x1="-2" y1="155" x2="6" y2="155" stroke="#6a5a4a" stroke-width="1.1"/>
+        <line x1="-2" y1="400" x2="6" y2="400" stroke="#6a5a4a" stroke-width="1.1"/>
+        <text id="v1-skirt" x="-4" y="283" text-anchor="middle" class="meas-text" transform="rotate(-90,-4,283)">84 см</text>
+
+      </svg>
+    </div>
+  </div>
+
+  <!-- ===== VARIANT 2: BLANK TEMPLATE ===== -->
+  <div class="variant">
+    <div class="variant-label">Шаблон (без размеров)</div>
+    <div class="sketch-card">
+      <svg width="260" height="430" viewBox="0 0 260 430" fill="none" xmlns="http://www.w3.org/2000/svg">
+
+        <!-- Collar -->
+        <rect x="102" y="22" width="56" height="16" rx="1.5" fill="#ddd5c8" stroke="#2e2420" stroke-width="1.6"/>
+        <line x1="108" y1="22" x2="102" y2="38" stroke="#2e2420" stroke-width="0.8" opacity="0.4"/>
+        <line x1="116" y1="22" x2="108" y2="38" stroke="#2e2420" stroke-width="0.8" opacity="0.4"/>
+        <line x1="124" y1="22" x2="116" y2="38" stroke="#2e2420" stroke-width="0.8" opacity="0.4"/>
+        <line x1="132" y1="22" x2="124" y2="38" stroke="#2e2420" stroke-width="0.8" opacity="0.4"/>
+        <line x1="140" y1="22" x2="132" y2="38" stroke="#2e2420" stroke-width="0.8" opacity="0.4"/>
+        <line x1="148" y1="22" x2="140" y2="38" stroke="#2e2420" stroke-width="0.8" opacity="0.4"/>
+        <line x1="156" y1="22" x2="148" y2="38" stroke="#2e2420" stroke-width="0.8" opacity="0.4"/>
+        <line x1="158" y1="24" x2="154" y2="38" stroke="#2e2420" stroke-width="0.8" opacity="0.4"/>
+
+        <!-- Shoulders -->
+        <path d="M102,38 C90,38 76,40 68,46" stroke="#2e2420" stroke-width="1.8" stroke-linecap="round"/>
+        <path d="M158,38 C170,38 184,40 192,46" stroke="#2e2420" stroke-width="1.8" stroke-linecap="round"/>
+
+        <!-- Left sleeve -->
+        <path d="M68,46 C58,44 38,50 30,62 C24,72 24,95 26,112 C27,122 30,135 34,148"
+              stroke="#2e2420" stroke-width="1.8" stroke-linecap="round"/>
+        <path d="M68,46 C72,54 74,70 76,88 C78,105 78,128 76,148"
+              stroke="#2e2420" stroke-width="1.8" stroke-linecap="round"/>
+        <line x1="33" y1="148" x2="77" y2="148" stroke="#2e2420" stroke-width="1.8"/>
+        <line x1="35" y1="155" x2="78" y2="155" stroke="#2e2420" stroke-width="1.4"/>
+        <line x1="33" y1="148" x2="35" y2="155" stroke="#2e2420" stroke-width="1.4"/>
+        <line x1="77" y1="148" x2="78" y2="155" stroke="#2e2420" stroke-width="1.4"/>
+
+        <!-- Right sleeve -->
+        <path d="M192,46 C202,44 222,50 230,62 C236,72 236,95 234,112 C233,122 230,135 226,148"
+              stroke="#2e2420" stroke-width="1.8" stroke-linecap="round"/>
+        <path d="M192,46 C188,54 186,70 184,88 C182,105 182,128 184,148"
+              stroke="#2e2420" stroke-width="1.8" stroke-linecap="round"/>
+        <line x1="183" y1="148" x2="227" y2="148" stroke="#2e2420" stroke-width="1.8"/>
+        <line x1="182" y1="155" x2="225" y2="155" stroke="#2e2420" stroke-width="1.4"/>
+        <line x1="183" y1="148" x2="182" y2="155" stroke="#2e2420" stroke-width="1.4"/>
+        <line x1="227" y1="148" x2="225" y2="155" stroke="#2e2420" stroke-width="1.4"/>
+
+        <!-- Bodice sides -->
+        <path d="M78,88 C80,100 80,122 80,155" stroke="#2e2420" stroke-width="1.8"/>
+        <path d="M182,88 C180,100 180,122 180,155" stroke="#2e2420" stroke-width="1.8"/>
+
+        <!-- Waist -->
+        <line x1="80" y1="155" x2="180" y2="155" stroke="#2e2420" stroke-width="0.9" stroke-dasharray="5,4"/>
+
+        <!-- Skirt -->
+        <path d="M80,155 C78,180 72,230 65,280 C60,318 54,355 50,400" stroke="#2e2420" stroke-width="1.8"/>
+        <path d="M180,155 C182,180 188,230 195,280 C200,318 206,355 210,400" stroke="#2e2420" stroke-width="1.8"/>
+        <path d="M50,400 C90,408 170,408 210,400" stroke="#2e2420" stroke-width="1.8"/>
+
+        <!-- Bust detail -->
+        <path d="M96,110 C104,118 112,120 118,118" stroke="#2e2420" stroke-width="1.1" opacity="0.55"/>
+        <path d="M142,118 C148,120 156,118 164,110" stroke="#2e2420" stroke-width="1.1" opacity="0.55"/>
+
+        <!-- Center line -->
+        <line x1="130" y1="38" x2="130" y2="408" stroke="#2e2420" stroke-width="0.6" stroke-dasharray="6,5" opacity="0.35"/>
+
+        <!-- ════ BLANK MEASUREMENT LINES ════ -->
+
+        <!-- Chest width -->
+        <line x1="80" y1="72" x2="180" y2="72" stroke="#6a5a4a" stroke-width="0.9" stroke-dasharray="3,3"/>
+        <line x1="80" y1="67" x2="80" y2="77" stroke="#6a5a4a" stroke-width="1.1"/>
+        <line x1="180" y1="67" x2="180" y2="77" stroke="#6a5a4a" stroke-width="1.1"/>
+        <text id="v2-chest" x="130" y="66" text-anchor="middle" class="meas-text placeholder">___  см</text>
+
+        <!-- Hip width -->
+        <line x1="73" y1="222" x2="187" y2="222" stroke="#6a5a4a" stroke-width="0.9" stroke-dasharray="3,3"/>
+        <line x1="73" y1="217" x2="73" y2="227" stroke="#6a5a4a" stroke-width="1.1"/>
+        <line x1="187" y1="217" x2="187" y2="227" stroke="#6a5a4a" stroke-width="1.1"/>
+        <text id="v2-hip" x="130" y="216" text-anchor="middle" class="meas-text placeholder">___  см</text>
+
+        <!-- Sleeve length -->
+        <line x1="14" y1="46" x2="14" y2="155" stroke="#6a5a4a" stroke-width="0.9" stroke-dasharray="3,3"/>
+        <line x1="10" y1="46" x2="18" y2="46" stroke="#6a5a4a" stroke-width="1.1"/>
+        <line x1="10" y1="155" x2="18" y2="155" stroke="#6a5a4a" stroke-width="1.1"/>
+        <text id="v2-sleeve" x="9" y="106" text-anchor="middle" class="meas-text placeholder" transform="rotate(-90,9,106)">___  см</text>
+
+        <!-- Skirt length -->
+        <line x1="2" y1="155" x2="2" y2="400" stroke="#6a5a4a" stroke-width="0.9" stroke-dasharray="3,3"/>
+        <line x1="-2" y1="155" x2="6" y2="155" stroke="#6a5a4a" stroke-width="1.1"/>
+        <line x1="-2" y1="400" x2="6" y2="400" stroke="#6a5a4a" stroke-width="1.1"/>
+        <text id="v2-skirt" x="-4" y="283" text-anchor="middle" class="meas-text placeholder" transform="rotate(-90,-4,283)">___  см</text>
+
+      </svg>
+    </div>
+  </div>
+
+</div>
+
+<button class="btn-print" onclick="window.print()">Распечатать</button>
+
+<script>
+  // Load saved values on page load
+  (function() {
+    const saved = localStorage.getItem('dressMeasurements');
+    if (saved) {
+      try {
+        const data = JSON.parse(saved);
+        document.getElementById('chest').value = data.chest || '';
+        document.getElementById('hip').value = data.hip || '';
+        document.getElementById('sleeve').value = data.sleeve || '';
+        document.getElementById('skirt').value = data.skirt || '';
+        applyValues();
+      } catch(e) {}
+    }
+  })();
+
+  function applyValues() {
+    const chest = document.getElementById('chest').value.trim();
+    const hip = document.getElementById('hip').value.trim();
+    const sleeve = document.getElementById('sleeve').value.trim();
+    const skirt = document.getElementById('skirt').value.trim();
+
+    // Variant 1 (filled values)
+    document.getElementById('v1-chest').textContent = chest ? chest + ' см' : '33 см';
+    document.getElementById('v1-hip').textContent = hip ? hip + ' см' : '49 см';
+    document.getElementById('v1-sleeve').textContent = sleeve ? sleeve + ' см' : '49 см';
+    document.getElementById('v1-skirt').textContent = skirt ? skirt + ' см' : '84 см';
+
+    // Variant 2 (blank template — show value if entered, otherwise keep placeholder style)
+    const v2Chest = document.getElementById('v2-chest');
+    v2Chest.textContent = chest ? chest + ' см' : '___  см';
+    v2Chest.classList.toggle('placeholder', !chest);
+
+    const v2Hip = document.getElementById('v2-hip');
+    v2Hip.textContent = hip ? hip + ' см' : '___  см';
+    v2Hip.classList.toggle('placeholder', !hip);
+
+    const v2Sleeve = document.getElementById('v2-sleeve');
+    v2Sleeve.textContent = sleeve ? sleeve + ' см' : '___  см';
+    v2Sleeve.classList.toggle('placeholder', !sleeve);
+
+    const v2Skirt = document.getElementById('v2-skirt');
+    v2Skirt.textContent = skirt ? skirt + ' см' : '___  см';
+    v2Skirt.classList.toggle('placeholder', !skirt);
+
+    // Save to localStorage
+    localStorage.setItem('dressMeasurements', JSON.stringify({
+      chest: chest,
+      hip: hip,
+      sleeve: sleeve,
+      skirt: skirt
+    }));
+  }
+
+  function clearValues() {
+    document.getElementById('chest').value = '';
+    document.getElementById('hip').value = '';
+    document.getElementById('sleeve').value = '';
+    document.getElementById('skirt').value = '';
+    applyValues();
+  }
+
+  // Auto-apply on input (with small debounce for mobile)
+  let debounceTimer;
+  ['chest','hip','sleeve','skirt'].forEach(id => {
+    document.getElementById(id).addEventListener('input', function() {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(applyValues, 300);
+    });
+  });
+
+  // Also apply on Enter key
+  document.querySelectorAll('.field input').forEach(input => {
+    input.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        applyValues();
+        this.blur();
+      }
+    });
+  });
+</script>
+
+</body>
+</html>
